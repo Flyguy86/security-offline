@@ -15,6 +15,9 @@ A separate **allowed‑presence** service writes `home|away` to a mode file so y
 - MQTT via `mosquitto_sub`/`mosquitto_pub`.
 - HTTP via `uclient-fetch` (or `wget` fallback).
 
+ Once Setup goto http://192.168.87.1/cgi-bin/index.cgi to see page of devices, and their state.
+
+
 ---
 
 ## 📁 Files & Layout
