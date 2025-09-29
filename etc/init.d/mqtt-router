@@ -1,19 +1,48 @@
 #!/bin/sh /etc/rc.common
 START=95
 USE_PROCD=1
-start_service(){
+NAME="mqtt-router"
+
+# --- config you may tune ---
+BROKER_IP="192.168.87.1"
+# DEBUG="1"          # uncomment for verbose logs from the router
+# MOSQ_USER="..."    # optional broker auth
+# MOSQ_PASS="..."    # optional broker auth
+# --------------------------
+
+start_service() {
   procd_open_instance
-  procd_set_param env BROKER=192.168.87.1
-  # Uncomment to keep verbose foreground-style logs in syslog:
-  # procd_set_param env DEBUG=1
-  # If your broker needs auth:
-  # procd_set_param env MOSQ_USER=youruser
-  # procd_set_param env MOSQ_PASS=yourpass
-
-  # Restart automatically if routes file changes:
-  procd_set_param file /etc/mqtt-http-routes.conf
-
   procd_set_param command /usr/bin/mqtt-router.sh
+  procd_set_param env BROKER="$BROKER_IP"
+  # procd_set_param env DEBUG="$DEBUG"
+  # procd_set_param env MOSQ_USER="$MOSQ_USER"
+  # procd_set_param env MOSQ_PASS="$MOSQ_PASS"
   procd_set_param respawn 2000 5 5
+  # restart when routes file changes
+  procd_set_param file /etc/mqtt-http-routes.conf
   procd_close_instance
+}
+
+# Hard kill ANY stray copies (foreground runs, old shells, children)
+kill_strays() {
+  # soft stop first
+  for sig in TERM KILL; do
+    # find PIDs for mqtt-router.sh and mosquitto_sub
+    for pid in $(ps w | grep -E '[m]qtt-router\.sh|[m]osquitto_sub' | awk '{print $1}'); do
+      kill -s $sig "$pid" 2>/dev/null || true
+    done
+    # also catch sh wrappers running the router
+    for pid in $(ps w | grep -E '/bin/sh /usr/bin/mqtt-router\.sh' | awk '{print $1}'); do
+      kill -s $sig "$pid" 2>/dev/null || true
+    done
+    sleep 0.3
+  done
+  rm -rf /var/run/mqtt-router.lock 2>/dev/null || true
+}
+
+stop_service() {
+  # stop the supervised instance(s)
+  procd_kill "$NAME" 2>/dev/null || true
+  # then ensure ALL strays are gone
+  kill_strays
 }
