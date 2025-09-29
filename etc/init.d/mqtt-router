@@ -1,0 +1,19 @@
+#!/bin/sh /etc/rc.common
+START=95
+USE_PROCD=1
+start_service(){
+  procd_open_instance
+  procd_set_param env BROKER=192.168.87.1
+  # Uncomment to keep verbose foreground-style logs in syslog:
+  # procd_set_param env DEBUG=1
+  # If your broker needs auth:
+  # procd_set_param env MOSQ_USER=youruser
+  # procd_set_param env MOSQ_PASS=yourpass
+
+  # Restart automatically if routes file changes:
+  procd_set_param file /etc/mqtt-http-routes.conf
+
+  procd_set_param command /usr/bin/mqtt-router.sh
+  procd_set_param respawn 2000 5 5
+  procd_close_instance
+}

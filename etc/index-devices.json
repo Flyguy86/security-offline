@@ -1,0 +1,21 @@
+{
+  "mqtt": { "host": "192.168.87.1", "port": 1883 },
+  "tiles": [
+    { "type": "radar",   "device": "mmwave1", "label": "mmWave 1" },
+    { "type": "radar",   "device": "mmwave2", "label": "mmWave 2" },
+
+    { "type": "tasmota", "device": "tasmota_D467D5",        "label": "Tasmota Strobe (MQTT)",
+      "relay": 2, "duration": 10, "burst": 1, "gap": 0.75
+    },
+
+    { "type": "shelly",  "device": "shelly1pm-C82B961DD586","label": "Shelly Strobe (MQTT)",
+      "relay": 0, "duration": 30, "burst": 3, "gap": 0.30
+    },
+
+    { "type": "shelly",  "device": "shelly1pm-C82B961DD588","label": "Shelly Strobe (MQTT) — 588",
+      "relay": 0, "duration": 30, "burst": 2, "gap": 0.50
+    },
+
+    { "type": "stopall", "label": "STOP — All Devices" }
+  ]
+}
